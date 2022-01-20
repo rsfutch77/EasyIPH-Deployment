@@ -43,7 +43,7 @@ Public Class frmMain
 
     ' File names
     Private MSIInstaller As String = "EVE Isk per Hour.msi"
-    Private MSIDirectory As String = "C:\Users\Brian\EVE Stuff\EVE IPH Project\EVEIPHSetupWizard\"
+    Private MSIDirectory As String = Path.Combine(My.Application.Info.DirectoryPath, "\EasyIPH-Setup")
 
     ' Special Processing
     Private Const StructureRigCategory As Integer = -66
@@ -84,7 +84,7 @@ Public Class frmMain
     Private TestSQLInteropDLLURL As String = "https://raw.githubusercontent.com/EVEIPH/LatestFiles/master/SQLite.Interop.dll"
     Private TestEVEIPHEXEURL As String = "https://raw.githubusercontent.com/EVEIPH/LatestFiles/master/EVE%20Isk%20per%20Hour.exe"
     Private TestEVEIPHUpdaterURL As String = "https://raw.githubusercontent.com/EVEIPH/LatestFiles/master/EVEIPH%20Updater.exe"
-    Private TestEVEIPHDBURL As String = "https://raw.githubusercontent.com/EVEIPH/LatestFiles/master/EVEIPH%20DB.sqlite"
+    Private TestEVEIPHDBURL As String = "https://raw.githubusercontent.com/rsfutch77/LatestFiles/test/EVEIPH%20DB.sqlite"
     Private TestUpdaterManifestURL As String = "https://raw.githubusercontent.com/EVEIPH/LatestFiles/master/EVEIPH%20Updater.exe.manifest"
     Private TestEXEManifestURL As String = "https://raw.githubusercontent.com/EVEIPH/LatestFiles/master/EVE%20Isk%20per%20Hour.exe.manifest"
     Private TestImageZipFileURL As String = "https://raw.githubusercontent.com/EVEIPH/LatestFiles/master/EVEIPH%20Images.zip"
@@ -521,7 +521,7 @@ Public Class frmMain
         End If
 
         LatestVersionXML = "LatestVersionIPH.xml"
-        LatestTestVersionXML = "LatestVersionIPH Test.xml"
+        LatestTestVersionXML = "LatestVersionIPH_Test.xml"
 
         ' When updating the image files to build the zip, update the root directory images as well so we have the updated images for running in debug mode
         EVEIPHImageFolder = SDEWorkingDirectory & BaseImageFolder
