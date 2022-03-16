@@ -5,7 +5,12 @@
       "ProjectGuid": "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3",
       "DisplayName": "Miscellaneous Files",
       "ColorIndex": -1
+    },
+    "4240e157-c44f-4894-a46e-62b85dc7f3b6": {
+      "ProjectGuid": "4240e157-c44f-4894-a46e-62b85dc7f3b6",
+      "DisplayName": "EasyIPH-Deployment",
+      "ColorIndex": 0
     }
   },
-  "NextColorIndex": 0
+  "NextColorIndex": 1
 }

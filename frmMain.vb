@@ -523,10 +523,6 @@ Public Class frmMain
         LatestVersionXML = "LatestVersionIPH.xml"
         LatestTestVersionXML = "LatestVersionIPH_Test.xml"
 
-        ' When updating the image files to build the zip, update the root directory images as well so we have the updated images for running in debug mode
-        EVEIPHImageFolder = SDEWorkingDirectory & BaseImageFolder
-        MissingImagesFilePath = SDEWorkingDirectory & "Missing Images.txt"
-
     End Sub
 
     Private Sub SetProgressBarValues(ByVal TableName As String)
@@ -585,22 +581,6 @@ Public Class frmMain
         End If
     End Sub
 
-    Private Sub btnSelectDBImagesPath_Click(sender As System.Object, e As System.EventArgs) Handles btnSelectWorkingPath.Click
-        If SDEWorkingDirectory <> "" Then
-            FolderBrowserDialog.SelectedPath = SDEWorkingDirectory
-        End If
-
-        If FolderBrowserDialog.ShowDialog() = DialogResult.OK Then
-            Try
-                lblWorkingFolderPath.Text = FolderBrowserDialog.SelectedPath
-                SDEWorkingDirectory = FolderBrowserDialog.SelectedPath
-                Call SetFilePaths()
-            Catch ex As Exception
-                MsgBox(Err.Description, vbExclamation, Application.ProductName)
-            End Try
-        End If
-    End Sub
-
     Private Sub btnSaveFilePath_Click(sender As System.Object, e As System.EventArgs) Handles btnSaveFilePath.Click
         Call SaveFilePaths()
     End Sub
@@ -623,12 +603,6 @@ Public Class frmMain
         If Trim(lblTestPath.Text) = "" Then
             MsgBox("Invalid Installer/Binary test file path", vbExclamation, Application.ProductName)
             lblTestPath.Focus()
-            Exit Sub
-        End If
-
-        If Trim(lblWorkingFolderPath.Text) = "" Then
-            MsgBox("Invalid Images file path", vbExclamation, Application.ProductName)
-            lblWorkingFolderPath.Focus()
             Exit Sub
         End If
 
@@ -757,9 +731,6 @@ Public Class frmMain
         ' DB
         File.Copy(SDEWorkingDirectory & EVEIPHDB, FinalBinaryFolderPath & EVEIPHDB)
 
-        ' IPH images
-        My.Computer.FileSystem.CopyDirectory(SDEWorkingDirectory & ImageFolder, FinalBinaryFolderPath & ImageFolder, True)
-
         ' Delete the file if it already exists
         File.Delete(FinalBinaryZipPath)
         ' Compress the whole file for download
@@ -833,362 +804,6 @@ Public Class frmMain
 
     End Sub
 
-#Region "Images"
-
-    ' Copies just the bp images that I use for EVE IPH from the latest dump into a new folder and zips them up for deployment
-    Private Sub btnImageCopy_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnImageCopy.Click
-        Dim ReaderCount As Long
-        Dim SQL As String
-        Dim rsReader As SQLiteDataReader
-        Dim DBCommand As SQLiteCommand
-        Dim MissingImages As Boolean
-
-        ' Make sure we have a DB first
-        If DatabaseName = "" Then
-            MsgBox("Database Name not defined", vbExclamation, Application.ProductName)
-            Call txtDBName.Focus()
-            Exit Sub
-        End If
-
-        ' Make sure we have a DB first
-        If EVEIPHRootDirectory = "" Then
-            MsgBox("Root Directory Path not set", vbExclamation, Application.ProductName)
-            Call btnSelectRootDebugPath.Focus()
-            Exit Sub
-        End If
-
-        Me.Cursor = Cursors.WaitCursor
-        Call EnableButtons(False)
-
-        If Not ConnectToDBs() Then
-            Me.Cursor = Cursors.Default
-            btnBuildDatabase.Enabled = True
-            btnImageCopy.Enabled = True
-            Exit Sub
-        End If
-
-        Me.Cursor = Cursors.WaitCursor
-        Application.DoEvents()
-
-        ' Build the new folder
-        If Directory.Exists(EVEIPHImageFolder) Then
-            Directory.Delete(EVEIPHImageFolder, True) ' Delete everything for zip in working
-        End If
-
-        If Directory.Exists(DebugImageFolder) Then
-            Directory.Delete(DebugImageFolder, True) ' Delete everything in my working folder
-        End If
-
-        ' Create the one directory for all images to work on
-        Directory.CreateDirectory(EVEIPHImageFolder)
-
-        ' For missing BP ID's
-        File.Delete(MissingImagesFilePath)
-
-        Dim OutputFile As New StreamWriter(MissingImagesFilePath)
-        OutputFile.WriteLine("Blueprint ID - Blueprint Name")
-        MissingImages = False
-
-        '*** Blueprints ***
-        ' Get the count first
-        SQL = "SELECT COUNT(*) FROM ALL_BLUEPRINTS"
-        DBCommand = New SQLiteCommand(SQL, EVEIPHSQLiteDB.DBRef)
-        rsReader = DBCommand.ExecuteReader
-        rsReader.Read()
-        ReaderCount = rsReader.GetValue(0)
-        rsReader.Close()
-
-        ' Get all the BP ID numbers we use in the program and copy those files to the directory
-        SQL = "SELECT BLUEPRINT_ID, BLUEPRINT_NAME FROM ALL_BLUEPRINTS"
-        DBCommand = New SQLiteCommand(SQL, EVEIPHSQLiteDB.DBRef)
-        rsReader = DBCommand.ExecuteReader
-
-        pgMain.Value = 0
-        pgMain.Maximum = ReaderCount
-        pgMain.Visible = True
-
-        Application.DoEvents()
-
-        ' Get Blueprint Images first
-        While rsReader.Read
-            Application.DoEvents()
-            Try
-                Call DownloadImageFromServer(CLng(rsReader.GetValue(0)), ImageType.BP, 64, EVEIPHImageFolder & "\" & CStr(Math.Abs(rsReader.GetValue(0))) & "_64.png")
-            Catch
-                ' Build a file with the BP ID's and Names that do not have a image
-                OutputFile.WriteLine(rsReader(0).ToString & " - " & rsReader(1).ToString)
-                MissingImages = True
-            End Try
-
-            ' For each record, update the progress bar
-            Call IncrementProgressBar(pgMain)
-            Application.DoEvents()
-
-        End While
-
-        '*** Mining Ships ***
-        ' Get the count first
-        SQL = "SELECT COUNT(*) FROM INVENTORY_TYPES WHERE typeName IN "
-        SQL &= "('Covetor','Retriever','Procurer','Hulk','Skiff','Mackinaw','Rokh','Drake','Gnosis','Rorqual','Orca','Porpoise','Endurance','Prospect','Venture')"
-        DBCommand = New SQLiteCommand(SQL, EVEIPHSQLiteDB.DBRef)
-        rsReader = DBCommand.ExecuteReader
-        rsReader.Read()
-        ReaderCount = rsReader.GetValue(0)
-        rsReader.Close()
-
-        ' Get all the BP ID numbers we use in the program and copy those files to the directory
-        SQL = "SELECT typeID, typeName FROM INVENTORY_TYPES WHERE typeName IN "
-        SQL &= "('Covetor','Retriever','Procurer','Hulk','Skiff','Mackinaw','Rokh','Drake','Gnosis','Rorqual','Orca','Porpoise','Endurance','Prospect','Venture')"
-        DBCommand = New SQLiteCommand(SQL, EVEIPHSQLiteDB.DBRef)
-        rsReader = DBCommand.ExecuteReader
-
-        pgMain.Value = 0
-        pgMain.Maximum = ReaderCount
-        pgMain.Visible = True
-
-        Application.DoEvents()
-
-        ' Get Blueprint Images first
-        While rsReader.Read
-            Application.DoEvents()
-            Try
-                Call DownloadImageFromServer(CLng(rsReader.GetValue(0)), ImageType.Icon, 64, EVEIPHImageFolder & "\" & CStr(Math.Abs(rsReader.GetValue(0))) & "_64.png")
-            Catch
-                ' Build a file with the BP ID's and Names that do not have a image
-                OutputFile.WriteLine(rsReader(0).ToString & " - " & rsReader(1).ToString)
-                MissingImages = True
-            End Try
-
-            ' For each record, update the progress bar
-            Call IncrementProgressBar(pgMain)
-            Application.DoEvents()
-
-        End While
-
-        '*** Other Icons ***
-        ' Get the count first
-        SQL = "SELECT COUNT(*) FROM INVENTORY_TYPES WHERE typeName IN "
-        SQL &= "('Heavy Water','Liquid Ozone','Helium Isotopes','Strontium Clathrates','Oxygen Isotopes','Nitrogen Isotopes','Hydrogen Isotopes','Caldari State Starbase Charter','Oxygen','Mechanical Parts','Nitrogen Fuel Block','Hydrogen Fuel Block','Helium Fuel Block','Oxygen Fuel Block','Enriched Uranium','Coolant','Robotics','Mining Foreman Burst I','Mining Foreman Burst II')"
-        DBCommand = New SQLiteCommand(SQL, EVEIPHSQLiteDB.DBRef)
-        rsReader = DBCommand.ExecuteReader
-        rsReader.Read()
-        ReaderCount = rsReader.GetValue(0)
-        rsReader.Close()
-
-        ' Get all the BP ID numbers we use in the program and copy those files to the directory
-        SQL = "SELECT typeID, typeName FROM INVENTORY_TYPES WHERE typeName IN "
-        SQL &= "('Heavy Water','Liquid Ozone','Helium Isotopes','Strontium Clathrates','Oxygen Isotopes','Nitrogen Isotopes','Hydrogen Isotopes','Caldari State Starbase Charter','Oxygen','Mechanical Parts','Nitrogen Fuel Block','Hydrogen Fuel Block','Helium Fuel Block','Oxygen Fuel Block','Enriched Uranium','Coolant','Robotics','Mining Foreman Burst I','Mining Foreman Burst II')"
-        DBCommand = New SQLiteCommand(SQL, EVEIPHSQLiteDB.DBRef)
-        rsReader = DBCommand.ExecuteReader
-
-        pgMain.Value = 0
-        pgMain.Maximum = ReaderCount
-        pgMain.Visible = True
-
-        Application.DoEvents()
-
-        ' Get Blueprint Images first
-        While rsReader.Read
-            Application.DoEvents()
-            Try
-                Call DownloadImageFromServer(CLng(rsReader.GetValue(0)), ImageType.Icon, 32, EVEIPHImageFolder & "\" & CStr(Math.Abs(rsReader.GetValue(0))) & "_32.png")
-            Catch
-                ' Build a file with the BP ID's and Names that do not have a image
-                OutputFile.WriteLine(rsReader(0).ToString & " - " & rsReader(1).ToString)
-                MissingImages = True
-            End Try
-
-            ' For each record, update the progress bar
-            Call IncrementProgressBar(pgMain)
-            Application.DoEvents()
-
-        End While
-
-        '*** Structure Module/Rig Blueprints ***
-        ' Get the count first
-        SQL = "SELECT COUNT(typeID) FROM INVENTORY_TYPES, INVENTORY_GROUPS WHERE INVENTORY_TYPES.groupID = INVENTORY_GROUPS.groupID "
-        SQL &= "AND ABS(categoryID) = 66 AND INVENTORY_TYPES.published <> 0"
-        DBCommand = New SQLiteCommand(SQL, EVEIPHSQLiteDB.DBRef)
-        rsReader = DBCommand.ExecuteReader
-        rsReader.Read()
-        ReaderCount = rsReader.GetValue(0)
-        rsReader.Close()
-
-        pgMain.Value = 0
-        pgMain.Maximum = ReaderCount
-        pgMain.Visible = True
-
-        ' Get all the Engineering Complex icons
-        SQL = "SELECT typeID, typeName FROM INVENTORY_TYPES, INVENTORY_GROUPS WHERE INVENTORY_TYPES.groupID = INVENTORY_GROUPS.groupID "
-        SQL &= "AND ABS(categoryID) = 66 AND INVENTORY_TYPES.published <> 0"
-        DBCommand = New SQLiteCommand(SQL, EVEIPHSQLiteDB.DBRef)
-        rsReader = DBCommand.ExecuteReader
-
-        Application.DoEvents()
-
-        ' Loop through and copy all the structure module icon images to the new folder
-        While rsReader.Read
-            Try
-                Call DownloadImageFromServer(CLng(rsReader.GetValue(0)), ImageType.Icon, 64, EVEIPHImageFolder & "\" & CStr(Math.Abs(rsReader.GetValue(0))) & "_64.png")
-            Catch
-                ' Build a file with the BP ID's and Names that do not have a image
-                OutputFile.WriteLine(rsReader(0).ToString & " - " & rsReader(1).ToString)
-                MissingImages = True
-            End Try
-
-            ' For each record, update the progress bar
-            Call IncrementProgressBar(pgMain)
-            Application.DoEvents()
-
-        End While
-
-        '*** Structure Renders ***
-        ' Finally, get all the upwell structures renders by typeID in the Renders folder - Look up by groupID - if these change or more are added, then need to update
-        SQL = "SELECT DISTINCT COUNT(typeID) FROM INVENTORY_TYPES, INVENTORY_GROUPS WHERE INVENTORY_GROUPS.categoryID = 65 
-                AND INVENTORY_TYPES.groupID = INVENTORY_GROUPS.groupid AND INVENTORY_TYPES.published = 1"
-        DBCommand = New SQLiteCommand(SQL, EVEIPHSQLiteDB.DBRef)
-        rsReader = DBCommand.ExecuteReader
-        rsReader.Read()
-        ReaderCount = rsReader.GetValue(0)
-        rsReader.Close()
-
-        pgMain.Value = 0
-        pgMain.Maximum = ReaderCount
-        pgMain.Visible = True
-
-        SQL = "Select DISTINCT typeID FROM INVENTORY_TYPES, INVENTORY_GROUPS WHERE INVENTORY_GROUPS.categoryID = 65 
-                AND INVENTORY_TYPES.groupID = INVENTORY_GROUPS.groupid AND INVENTORY_TYPES.published = 1"
-        DBCommand = New SQLiteCommand(SQL, EVEIPHSQLiteDB.DBRef)
-        rsReader = DBCommand.ExecuteReader
-
-        Application.DoEvents()
-
-        ' Loop through and copy all the render images to the new folder for upwell structures items
-        While rsReader.Read
-            Try
-                Call DownloadImageFromServer(CLng(rsReader.GetValue(0)), ImageType.Render, 512, EVEIPHImageFolder & "\" & CStr(Math.Abs(rsReader.GetValue(0))) & ".png")
-            Catch
-                ' Build a file with the BP ID's and Names that do not have a image
-                OutputFile.WriteLine(rsReader(0).ToString & " - " & rsReader(1).ToString)
-                MissingImages = True
-            End Try
-
-            ' For each record, update the progress bar
-            Call IncrementProgressBar(pgMain)
-            Application.DoEvents()
-        End While
-
-        Call rsReader.Close()
-
-        pgMain.Visible = False
-        lblTableName.Text = "Cleaning up files..."
-        Application.DoEvents()
-
-        ' Delete the file if it already exists
-        File.Delete(SDEWorkingDirectory & "EVEIPH Images.zip")
-
-        ' Compress the images
-        Call ZipFile.CreateFromDirectory(EVEIPHImageFolder, SDEWorkingDirectory & "EVEIPH Images.zip", CompressionLevel.Optimal, False)
-
-        ' Unzip the folder into the EVE IPH Root Debug directory
-        Call ZipFile.ExtractToDirectory(Path.Combine(SDEWorkingDirectory, "EVEIPH Images.zip"), Path.Combine(EVEIPHRootDirectory, BaseImageFolder))
-
-        ' If we didn't output any missing images, delete the output fille
-        If Not MissingImages Then
-            OutputFile.Close()
-            File.Delete(MissingImagesFilePath)
-        End If
-
-        ' Leave working folder for use with binary builder
-        Call CloseDBs()
-
-        Me.Cursor = Cursors.Default
-        lblTableName.Text = ""
-        Call EnableButtons(True)
-
-        MsgBox("Images Copied Successfully", vbInformation, "Complete")
-
-    End Sub
-
-    Public Enum ImageType
-        BP = 0
-        BPC = 1
-        Icon = 2
-        Render = 3
-    End Enum
-
-    ' Downloads the sent file from server and saves it to the root directory as the sent file name
-    Public Function DownloadImageFromServer(ByVal ImageID As Long, IT As ImageType, Size As Integer, ByVal FileName As String) As String
-        ' Creating the request And getting the response
-        Dim Response As HttpWebResponse
-        Dim Request As HttpWebRequest
-        Dim TypeCode As String = ""
-        Dim ValidSizes As New List(Of Integer)(New Integer() {32, 64, 128, 256, 512, 1024})
-
-        Select Case IT
-            Case ImageType.BP
-                TypeCode = "bp"
-            Case ImageType.BPC
-                TypeCode = "bpc"
-            Case ImageType.Icon
-                TypeCode = "icon"
-            Case ImageType.Render
-                TypeCode = "render"
-        End Select
-
-        If TypeCode = "" Or Not ValidSizes.Contains(Size) Then
-            Return ""
-        End If
-
-        Dim URL As String = "https://images.evetech.net/types/" & CStr(ImageID) & "/" & TypeCode
-
-        If Size <> 0 And IT <> ImageType.Render Then
-            URL &= "?size=" & CStr(Size)
-        End If
-
-        ' For reading in chunks of data
-        Dim readBytes(4095) As Byte
-        ' Create directory if it doesn't exist already
-        If Not Directory.Exists(Path.GetDirectoryName(FileName)) Then
-            Directory.CreateDirectory(Path.GetDirectoryName(FileName))
-        End If
-        Dim writeStream As New FileStream(FileName, FileMode.Create)
-        Dim bytesread As Integer
-
-        Try 'Checks if the file exist
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12
-            Request = DirectCast(HttpWebRequest.Create(URL), HttpWebRequest)
-            Request.Proxy = Nothing
-            Request.Credentials = CredentialCache.DefaultCredentials ' Added 9/27 to attempt to fix error: (407) Proxy Authentication Required.
-            Request.Timeout = 50000
-            Response = CType(Request.GetResponse, HttpWebResponse)
-        Catch ex As Exception
-            ' Show error and exit
-            'Close the streams
-            writeStream.Close()
-            Return ""
-        End Try
-
-        ' Loop through and get the file in chunks, save out
-        Do
-            bytesread = Response.GetResponseStream.Read(readBytes, 0, 4096)
-
-            ' No more bytes to read
-            If bytesread = 0 Then Exit Do
-
-            writeStream.Write(readBytes, 0, bytesread)
-        Loop
-
-        'Close the streams
-        Response.GetResponseStream.Close()
-        writeStream.Close()
-
-        Return FileName
-
-    End Function
-
-#End Region
-
 #Region "Supporting Functions"
 
     Private Structure Setting
@@ -1208,7 +823,6 @@ Public Class frmMain
 
     Public Sub EnableButtons(EnableValue As Boolean)
         btnBuildDatabase.Enabled = EnableValue
-        btnImageCopy.Enabled = EnableValue
         btnCopyFilesBuildXML.Enabled = EnableValue
         btnBuildBinary.Enabled = EnableValue
         btnRefreshList.Enabled = EnableValue
@@ -1451,7 +1065,6 @@ Public Class frmMain
             lblTableName.Text = ""
             Me.Cursor = Cursors.Default
             btnBuildDatabase.Enabled = True
-            btnImageCopy.Enabled = True
             ' Done
             Exit Sub
         End If
@@ -7797,7 +7410,6 @@ Public Class frmMain
         If Not ConnectToDBs() Then
             Me.Cursor = Cursors.Default
             btnBuildDatabase.Enabled = True
-            btnImageCopy.Enabled = True
             MsgBox("Could not connect to database.", vbExclamation, Application.ProductName)
             Return False
         End If
@@ -8213,13 +7825,6 @@ Public Class frmMain
                 writer.WriteEndElement()
 
                 writer.WriteStartElement("row")
-                writer.WriteAttributeString("Name", ImageZipFile)
-                writer.WriteAttributeString("Version", "1.0")
-                writer.WriteAttributeString("MD5", MD5CalcFile(FileDirectory & ImageZipFile))
-                writer.WriteAttributeString("URL", TestImageZipFileURL)
-                writer.WriteEndElement()
-
-                writer.WriteStartElement("row")
                 writer.WriteAttributeString("Name", JSONDLL)
                 writer.WriteAttributeString("Version", FileVersionInfo.GetVersionInfo(JSONDLL).FileVersion)
                 writer.WriteAttributeString("MD5", MD5CalcFile(FileDirectory & JSONDLL))
@@ -8319,13 +7924,6 @@ Public Class frmMain
                 writer.WriteAttributeString("Version", DatabaseName)
                 writer.WriteAttributeString("MD5", MD5CalcFile(FileDirectory & EVEIPHDB))
                 writer.WriteAttributeString("URL", EVEIPHDBURL)
-                writer.WriteEndElement()
-
-                writer.WriteStartElement("row")
-                writer.WriteAttributeString("Name", ImageZipFile)
-                writer.WriteAttributeString("Version", "1.0")
-                writer.WriteAttributeString("MD5", MD5CalcFile(FileDirectory & ImageZipFile))
-                writer.WriteAttributeString("URL", ImageZipFileURL)
                 writer.WriteEndElement()
 
                 writer.WriteStartElement("row")
