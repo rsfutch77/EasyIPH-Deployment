@@ -66,23 +66,23 @@ Public Class frmMain
     Private LatestVersionXML As String
     Private LatestTestVersionXML As String
 
-    Private JSONDLLURL As String = "https://raw.githubusercontent.com/EasyIPH/LatestFiles/master/Newtonsoft.Json.dll"
-    Private SQLiteDLLURL As String = "https://raw.githubusercontent.com/EasyIPH/LatestFiles/master/System.Data.SQLite.dll"
-    Private SQLInteropDLLURL As String = "https://raw.githubusercontent.com/EasyIPH/LatestFiles/master/SQLite.Interop.dll"
-    Private EVEIPHEXEURL As String = "https://raw.githubusercontent.com/EasyIPH/LatestFiles/master/EasyIPH.exe"
-    Private EVEIPHUpdaterURL As String = "https://raw.githubusercontent.com/EasyIPH/LatestFiles/master/EVEIPH%20Updater.exe"
-    Private EVEIPHDBURL As String = "https://raw.githubusercontent.com/EasyIPH/LatestFiles/master/EVEIPH%20DB.sqlite"
-    Private UpdaterManifestURL As String = "https://raw.githubusercontent.com/EasyIPH/LatestFiles/master/EVEIPH%20Updater.exe.manifest"
-    Private EXEManifestURL As String = "https://raw.githubusercontent.com/EasyIPH/LatestFiles/master/EVE%20Isk%20per%20Hour.exe.manifest"
-    Private GAURL As String = "https://raw.githubusercontent.com/EasyIPH/LatestFiles/master/GoogleAnalyticsClientDotNet.Net45.dll"
-    Private LPSolveDLLURL As String = "https://raw.githubusercontent.com/EasyIPH/LatestFiles/master/LpSolveDotNet.dll"
-    Private LPSolve55DLLURL As String = "https://raw.githubusercontent.com/EasyIPH/LatestFiles/master/lpsolve55.dll"
+    Private JSONDLLURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/Newtonsoft.Json.dll"
+    Private SQLiteDLLURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/System.Data.SQLite.dll"
+    Private SQLInteropDLLURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/SQLite.Interop.dll"
+    Private EVEIPHEXEURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/EasyIPH.exe"
+    Private EVEIPHUpdaterURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/EVEIPH%20Updater.exe"
+    Private EVEIPHDBURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/EVEIPH%20DB.sqlite"
+    Private UpdaterManifestURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/EVEIPH%20Updater.exe.manifest"
+    Private EXEManifestURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/EVE%20Isk%20per%20Hour.exe.manifest"
+    Private GAURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/GoogleAnalyticsClientDotNet.Net45.dll"
+    Private LPSolveDLLURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/LpSolveDotNet.dll"
+    Private LPSolve55DLLURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/lpsolve55.dll"
 
-    Private JWTDLLURL As String = "https://raw.githubusercontent.com/EVEIPH/LatestFiles/master/JWT.dll"
-    Private IMTokensJWTDLLURL As String = "https://raw.githubusercontent.com/EVEIPH/LatestFiles/master/System.IdentityModel.Tokens.Jwt.dll"
-    Private IMJsonWebTokensDLLURL As String = "https://raw.githubusercontent.com/EVEIPH/LatestFiles/master/Microsoft.IdentityModel.JsonWebTokens.dll"
-    Private IMTokensDLLURL As String = "https://raw.githubusercontent.com/EVEIPH/LatestFiles/master/Microsoft.IdentityModel.Tokens.dll"
-    Private IMLoggingDLLURL As String = "https://raw.githubusercontent.com/EVEIPH/LatestFiles/master/Microsoft.IdentityModel.Logging.dll"
+    Private JWTDLLURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/JWT.dll"
+    Private IMTokensJWTDLLURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/System.IdentityModel.Tokens.Jwt.dll"
+    Private IMJsonWebTokensDLLURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/Microsoft.IdentityModel.JsonWebTokens.dll"
+    Private IMTokensDLLURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/Microsoft.IdentityModel.Tokens.dll"
+    Private IMLoggingDLLURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/Microsoft.IdentityModel.Logging.dll"
 
     Private FileList As List(Of FileNameDate)
 
