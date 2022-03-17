@@ -29,14 +29,6 @@ Public Class frmMain
     Private SQLInstance As String ' how to log into the SQL server on the host computer
     Private Const DBExtention As String = ".sqlite"
 
-    ' Image folder
-    Private EVEIPHImageFolder As String
-    Private BaseImageFolder As String = "EVEIPH Images"
-
-    ' When updating the image files to build the zip, update the root directory images as well so we have the updated images for running in debug mode
-    Private DebugImageFolder As String
-    Private MissingImagesFilePath As String
-
     ' For saving and scanning the github folder for updates - this folder is in the deployment folder (same as installer and binary)
     Private FinalBinaryFolder As String = "EVEIPH\"
     Private FinalBinaryZip As String = "EVEIPH Binaries.zip"
@@ -51,12 +43,11 @@ Public Class frmMain
     Private Const MolecularForgingToolsGroupID As Integer = -2
     Private Const ProtectiveComponents As Integer = -3
 
-    Private EVEIPHEXE As String = "EVE Isk per Hour.exe"
+    Private EVEIPHEXE As String = "EasyIPH.exe"
     Private EVEIPHUpdater As String = "EVEIPH Updater.exe"
     Private EVEIPHDB As String = "EVEIPH DB.sqlite"
     Private UpdaterManifest As String = "EVEIPH Updater.exe.manifest"
     Private EXEManifest As String = "EVE Isk per Hour.exe.manifest"
-    Private ImageZipFile As String = "EVEIPH Images.zip"
 
     ' DLLs
     Private IMTokensJWTDLL As String = "System.IdentityModel.Tokens.Jwt.dll"
@@ -499,7 +490,6 @@ Public Class frmMain
             End If
         End If
 
-        DebugImageFolder = EVEIPHRootDirectory & BaseImageFolder
         DatabasePath = SDEWorkingDirectory & DatabaseName
         FinalDBPath = SDEWorkingDirectory & FinalDBName
 
@@ -698,9 +688,6 @@ Public Class frmMain
         Dim FinalBinaryFolderPath As String = SDEWorkingDirectory & FinalBinaryFolder
         Dim FinalBinaryZipPath As String = SDEWorkingDirectory & FinalBinaryZip
 
-        ' Temp working Image folder to zip later
-        Dim ImageFolder As String = "EVEIPH Images" ' IN DD Working
-
         btnBuildBinary.Enabled = False
         Application.UseWaitCursor = True
         Application.DoEvents()
@@ -812,7 +799,6 @@ Public Class frmMain
 
     End Sub
 
-            Call File.Delete(FileName)
 #Region "Supporting Functions"
 
     Private Structure Setting
@@ -7756,11 +7742,6 @@ Public Class frmMain
 
         If MD5CalcFile(SDEWorkingDirectory & EVEIPHDB) <> MD5CalcFile(FileDirectory & EVEIPHDB) Then
             File.Copy(SDEWorkingDirectory & EVEIPHDB, FileDirectory & EVEIPHDB, True)
-            NewFilesAdded = True
-        End If
-
-        If MD5CalcFile(SDEWorkingDirectory & ImageZipFile) <> MD5CalcFile(FileDirectory & ImageZipFile) Then
-            File.Copy(SDEWorkingDirectory & ImageZipFile, FileDirectory & ImageZipFile, True)
             NewFilesAdded = True
         End If
 
