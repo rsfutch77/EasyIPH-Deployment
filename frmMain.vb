@@ -46,8 +46,6 @@ Public Class frmMain
     Private EVEIPHEXE As String = "EasyIPH.exe"
     Private EVEIPHUpdater As String = "EVEIPH Updater.exe"
     Private EVEIPHDB As String = "EVEIPH DB.sqlite"
-    Private UpdaterManifest As String = "EVEIPH Updater.exe.manifest"
-    Private EXEManifest As String = "EVE Isk per Hour.exe.manifest"
 
     ' DLLs
     Private IMTokensJWTDLL As String = "System.IdentityModel.Tokens.Jwt.dll"
@@ -72,8 +70,6 @@ Public Class frmMain
     Private EVEIPHEXEURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/EasyIPH.exe"
     Private EVEIPHUpdaterURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/EVEIPH%20Updater.exe"
     Private EVEIPHDBURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/EVEIPH%20DB.sqlite"
-    Private UpdaterManifestURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/EVEIPH%20Updater.exe.manifest"
-    Private EXEManifestURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/EVE%20Isk%20per%20Hour.exe.manifest"
     Private GAURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/GoogleAnalyticsClientDotNet.Net45.dll"
     Private LPSolveDLLURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/LpSolveDotNet.dll"
     Private LPSolve55DLLURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/lpsolve55.dll"
@@ -711,8 +707,6 @@ Public Class frmMain
         File.Copy(UploadFileDirectory & SQLInteropDLL, FinalBinaryFolderPath & SQLInteropDLL)
         File.Copy(UploadFileDirectory & EVEIPHEXE, FinalBinaryFolderPath & EVEIPHEXE)
         File.Copy(UploadFileDirectory & EVEIPHUpdater, FinalBinaryFolderPath & EVEIPHUpdater)
-        File.Copy(UploadFileDirectory & UpdaterManifest, FinalBinaryFolderPath & UpdaterManifest)
-        File.Copy(UploadFileDirectory & EXEManifest, FinalBinaryFolderPath & EXEManifest)
         File.Copy(UploadFileDirectory & LatestVersionXML, FinalBinaryFolderPath & LatestVersionXML)
         File.Copy(UploadFileDirectory & GADLL, FinalBinaryFolderPath & GADLL)
         File.Copy(UploadFileDirectory & JWTDLL, FinalBinaryFolderPath & JWTDLL)
@@ -7745,16 +7739,6 @@ Public Class frmMain
             NewFilesAdded = True
         End If
 
-        If MD5CalcFile(EVEIPHRootDirectory & UpdaterManifest) <> MD5CalcFile(FileDirectory & UpdaterManifest) Then
-            File.Copy(EVEIPHRootDirectory & UpdaterManifest, FileDirectory & UpdaterManifest, True)
-            NewFilesAdded = True
-        End If
-
-        If MD5CalcFile(EVEIPHRootDirectory & EXEManifest) <> MD5CalcFile(FileDirectory & EXEManifest) Then
-            File.Copy(EVEIPHRootDirectory & EXEManifest, FileDirectory & EXEManifest, True)
-            NewFilesAdded = True
-        End If
-
         If MD5CalcFile(EVEIPHRootDirectory & GADLL) <> MD5CalcFile(FileDirectory & GADLL) Then
             File.Copy(EVEIPHRootDirectory & GADLL, FileDirectory & GADLL, True)
             NewFilesAdded = True
@@ -7887,20 +7871,6 @@ Public Class frmMain
             writer.WriteAttributeString("Version", FileVersionInfo.GetVersionInfo(FileDirectory & SQLInteropDLL).FileVersion)
             writer.WriteAttributeString("MD5", MD5CalcFile(FileDirectory & SQLInteropDLL))
             writer.WriteAttributeString("URL", SQLInteropDLLURL)
-            writer.WriteEndElement()
-
-            writer.WriteStartElement("row")
-            writer.WriteAttributeString("Name", UpdaterManifest)
-            writer.WriteAttributeString("Version", "1.0")
-            writer.WriteAttributeString("MD5", MD5CalcFile(FileDirectory & UpdaterManifest))
-            writer.WriteAttributeString("URL", UpdaterManifestURL)
-            writer.WriteEndElement()
-
-            writer.WriteStartElement("row")
-            writer.WriteAttributeString("Name", EXEManifest)
-            writer.WriteAttributeString("Version", "1.0")
-            writer.WriteAttributeString("MD5", MD5CalcFile(FileDirectory & EXEManifest))
-            writer.WriteAttributeString("URL", EXEManifestURL)
             writer.WriteEndElement()
 
             writer.WriteStartElement("row")
