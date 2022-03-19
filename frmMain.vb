@@ -44,7 +44,7 @@ Public Class frmMain
     Private Const ProtectiveComponents As Integer = -3
 
     Private EVEIPHEXE As String = "EasyIPH.exe"
-    Private EVEIPHUpdater As String = "EVEIPH Updater.exe"
+    Private EVEIPHUpdater As String = "EasyIPH-Updater.exe"
     Private EVEIPHDB As String = "EVEIPH DB.sqlite"
 
     ' DLLs
