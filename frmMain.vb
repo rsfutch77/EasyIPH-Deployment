@@ -64,21 +64,24 @@ Public Class frmMain
     Private LatestVersionXML As String
     Private LatestTestVersionXML As String
 
-    Private JSONDLLURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/Newtonsoft.Json.dll"
-    Private SQLiteDLLURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/System.Data.SQLite.dll"
-    Private SQLInteropDLLURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/SQLite.Interop.dll"
-    Private EVEIPHEXEURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/EasyIPH.exe"
-    Private EVEIPHUpdaterURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/EVEIPH%20Updater.exe"
-    Private EVEIPHDBURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/EVEIPH%20DB.sqlite"
-    Private GAURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/GoogleAnalyticsClientDotNet.Net45.dll"
-    Private LPSolveDLLURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/LpSolveDotNet.dll"
-    Private LPSolve55DLLURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/lpsolve55.dll"
+    Private MasterURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/"
+    Private TestURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/test/"
 
-    Private JWTDLLURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/JWT.dll"
-    Private IMTokensJWTDLLURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/System.IdentityModel.Tokens.Jwt.dll"
-    Private IMJsonWebTokensDLLURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/Microsoft.IdentityModel.JsonWebTokens.dll"
-    Private IMTokensDLLURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/Microsoft.IdentityModel.Tokens.dll"
-    Private IMLoggingDLLURL As String = "https://raw.githubusercontent.com/rsfutch77/EasyIPH-LatestFiles/master/Microsoft.IdentityModel.Logging.dll"
+    Private JSONDLLURL As String = "Newtonsoft.Json.dll"
+    Private SQLiteDLLURL As String = "System.Data.SQLite.dll"
+    Private SQLInteropDLLURL As String = "SQLite.Interop.dll"
+    Private EVEIPHEXEURL As String = "EasyIPH.exe"
+    Private EVEIPHUpdaterURL As String = "EasyIPH-Updater.exe"
+    Private EVEIPHDBURL As String = "EasyIPH_DB.sqlite"
+    Private GAURL As String = "GoogleAnalyticsClientDotNet.Net45.dll"
+    Private LPSolveDLLURL As String = "LpSolveDotNet.dll"
+    Private LPSolve55DLLURL As String = "lpsolve55.dll"
+
+    Private JWTDLLURL As String = "JWT.dll"
+    Private IMTokensJWTDLLURL As String = "System.IdentityModel.Tokens.Jwt.dll"
+    Private IMJsonWebTokensDLLURL As String = "Microsoft.IdentityModel.JsonWebTokens.dll"
+    Private IMTokensDLLURL As String = "Microsoft.IdentityModel.Tokens.dll"
+    Private IMLoggingDLLURL As String = "Microsoft.IdentityModel.Logging.dll"
 
     Private FileList As List(Of FileNameDate)
 
@@ -708,6 +711,11 @@ Public Class frmMain
         File.Copy(UploadFileDirectory & EVEIPHEXE, FinalBinaryFolderPath & EVEIPHEXE)
         File.Copy(UploadFileDirectory & EVEIPHUpdater, FinalBinaryFolderPath & EVEIPHUpdater)
         File.Copy(UploadFileDirectory & LatestVersionXML, FinalBinaryFolderPath & LatestVersionXML)
+        If chkCreateTest.Checked Then
+            File.Copy(UploadFileDirectory & LatestTestVersionXML, FinalBinaryFolderPath & LatestTestVersionXML)
+        Else
+            File.Copy(UploadFileDirectory & LatestVersionXML, FinalBinaryFolderPath & LatestVersionXML)
+        End If
         File.Copy(UploadFileDirectory & GADLL, FinalBinaryFolderPath & GADLL)
         File.Copy(UploadFileDirectory & JWTDLL, FinalBinaryFolderPath & JWTDLL)
         File.Copy(UploadFileDirectory & IMTokensJWTDLL, FinalBinaryFolderPath & IMTokensJWTDLL)
@@ -7809,9 +7817,15 @@ Public Class frmMain
         Dim XMLSettings As XmlWriterSettings = New XmlWriterSettings()
         XMLSettings.Indent = True
 
-        File.Delete(LatestVersionXML)
-        VersionXMLFileName = LatestVersionXML
-        FileDirectory = UploadFileDirectory
+        If chkCreateTest.Checked Then
+            File.Delete(LatestTestVersionXML)
+            VersionXMLFileName = LatestTestVersionXML
+            FileDirectory = UploadFileTestDirectory
+        Else
+            File.Delete(LatestVersionXML)
+            VersionXMLFileName = LatestVersionXML
+            FileDirectory = UploadFileDirectory
+        End If
 
         ' Loop through the settings sent and output each name and value
         ' Copy the new XML file into the root directory - so I don't get updates and then manually upload this to media fire so people don't get crazy updates
@@ -7829,26 +7843,33 @@ Public Class frmMain
             writer.WriteAttributeString("key", "version")
             writer.WriteAttributeString("columns", "Name,Version,MD5,URL")
 
+            Dim MainURL As String
+            If chkCreateTest.Checked Then
+                MainURL = TestURL
+            Else
+                MainURL = MasterURL
+            End If
+
             ' Add each file 
             writer.WriteStartElement("row")
             writer.WriteAttributeString("Name", EVEIPHEXE)
             writer.WriteAttributeString("Version", FileVersionInfo.GetVersionInfo(FileDirectory & EVEIPHEXE).FileVersion)
             writer.WriteAttributeString("MD5", MD5CalcFile(FileDirectory & EVEIPHEXE))
-            writer.WriteAttributeString("URL", EVEIPHEXEURL)
+            writer.WriteAttributeString("URL", (MainURL & EVEIPHEXEURL))
             writer.WriteEndElement()
 
             writer.WriteStartElement("row")
             writer.WriteAttributeString("Name", EVEIPHUpdater)
             writer.WriteAttributeString("Version", FileVersionInfo.GetVersionInfo(FileDirectory & EVEIPHUpdater).FileVersion)
             writer.WriteAttributeString("MD5", MD5CalcFile(FileDirectory & EVEIPHUpdater))
-            writer.WriteAttributeString("URL", EVEIPHUpdaterURL)
+            writer.WriteAttributeString("URL", (MainURL & EVEIPHUpdaterURL))
             writer.WriteEndElement()
 
             writer.WriteStartElement("row")
             writer.WriteAttributeString("Name", EVEIPHDB)
             writer.WriteAttributeString("Version", DatabaseName)
             writer.WriteAttributeString("MD5", MD5CalcFile(FileDirectory & EVEIPHDB))
-            writer.WriteAttributeString("URL", EVEIPHDBURL)
+            writer.WriteAttributeString("URL", (MainURL & EVEIPHDBURL))
             writer.WriteEndElement()
 
             writer.WriteStartElement("row")
@@ -7856,77 +7877,77 @@ Public Class frmMain
             writer.WriteAttributeString("Name", JSONDLL)
             writer.WriteAttributeString("Version", FileVersionInfo.GetVersionInfo(FileDirectory & JSONDLL).FileVersion)
             writer.WriteAttributeString("MD5", MD5CalcFile(FileDirectory & JSONDLL))
-            writer.WriteAttributeString("URL", JSONDLLURL)
+            writer.WriteAttributeString("URL", (MainURL & JSONDLLURL))
             writer.WriteEndElement()
 
             writer.WriteStartElement("row")
             writer.WriteAttributeString("Name", SQLiteDLL)
             writer.WriteAttributeString("Version", FileVersionInfo.GetVersionInfo(FileDirectory & SQLiteDLL).FileVersion)
             writer.WriteAttributeString("MD5", MD5CalcFile(FileDirectory & SQLiteDLL))
-            writer.WriteAttributeString("URL", SQLiteDLLURL)
+            writer.WriteAttributeString("URL", (MainURL & SQLiteDLLURL))
             writer.WriteEndElement()
 
             writer.WriteStartElement("row")
             writer.WriteAttributeString("Name", SQLInteropDLL)
             writer.WriteAttributeString("Version", FileVersionInfo.GetVersionInfo(FileDirectory & SQLInteropDLL).FileVersion)
             writer.WriteAttributeString("MD5", MD5CalcFile(FileDirectory & SQLInteropDLL))
-            writer.WriteAttributeString("URL", SQLInteropDLLURL)
+            writer.WriteAttributeString("URL", (MainURL & SQLInteropDLLURL))
             writer.WriteEndElement()
 
             writer.WriteStartElement("row")
             writer.WriteAttributeString("Name", LPSolveDLL)
             writer.WriteAttributeString("Version", FileVersionInfo.GetVersionInfo(FileDirectory & LPSolveDLL).FileVersion)
             writer.WriteAttributeString("MD5", MD5CalcFile(FileDirectory & LPSolveDLL))
-            writer.WriteAttributeString("URL", LPSolveDLLURL)
+            writer.WriteAttributeString("URL", (MainURL & LPSolveDLLURL))
             writer.WriteEndElement()
 
             writer.WriteStartElement("row")
             writer.WriteAttributeString("Name", LPSolve55DLL)
             writer.WriteAttributeString("Version", FileVersionInfo.GetVersionInfo(FileDirectory & LPSolve55DLL).FileVersion)
             writer.WriteAttributeString("MD5", MD5CalcFile(FileDirectory & LPSolve55DLL))
-            writer.WriteAttributeString("URL", LPSolve55DLLURL)
+            writer.WriteAttributeString("URL", (MainURL & LPSolve55DLLURL))
             writer.WriteEndElement()
 
             writer.WriteStartElement("row")
             writer.WriteAttributeString("Name", GADLL)
             writer.WriteAttributeString("Version", FileVersionInfo.GetVersionInfo(FileDirectory & GADLL).FileVersion)
             writer.WriteAttributeString("MD5", MD5CalcFile(FileDirectory & GADLL))
-            writer.WriteAttributeString("URL", GAURL)
+            writer.WriteAttributeString("URL", (MainURL & GAURL))
             writer.WriteEndElement()
 
             writer.WriteStartElement("row")
             writer.WriteAttributeString("Name", JWTDLL)
             writer.WriteAttributeString("Version", FileVersionInfo.GetVersionInfo(FileDirectory & JWTDLL).FileVersion)
             writer.WriteAttributeString("MD5", MD5CalcFile(FileDirectory & JWTDLL))
-            writer.WriteAttributeString("URL", JWTDLLURL)
+            writer.WriteAttributeString("URL", (MainURL & JWTDLLURL))
             writer.WriteEndElement()
 
             writer.WriteStartElement("row")
             writer.WriteAttributeString("Name", IMTokensJWTDLL)
             writer.WriteAttributeString("Version", FileVersionInfo.GetVersionInfo(FileDirectory & IMTokensJWTDLL).FileVersion)
             writer.WriteAttributeString("MD5", MD5CalcFile(FileDirectory & IMTokensJWTDLL))
-            writer.WriteAttributeString("URL", IMTokensJWTDLLURL)
+            writer.WriteAttributeString("URL", (MainURL & IMTokensJWTDLLURL))
             writer.WriteEndElement()
 
             writer.WriteStartElement("row")
             writer.WriteAttributeString("Name", IMJsonWebTokensDLL)
             writer.WriteAttributeString("Version", FileVersionInfo.GetVersionInfo(FileDirectory & IMJsonWebTokensDLL).FileVersion)
             writer.WriteAttributeString("MD5", MD5CalcFile(FileDirectory & IMJsonWebTokensDLL))
-            writer.WriteAttributeString("URL", IMJsonWebTokensDLLURL)
+            writer.WriteAttributeString("URL", (MainURL & IMJsonWebTokensDLLURL))
             writer.WriteEndElement()
 
             writer.WriteStartElement("row")
             writer.WriteAttributeString("Name", IMTokensDLL)
             writer.WriteAttributeString("Version", FileVersionInfo.GetVersionInfo(FileDirectory & IMTokensDLL).FileVersion)
             writer.WriteAttributeString("MD5", MD5CalcFile(FileDirectory & IMTokensDLL))
-            writer.WriteAttributeString("URL", IMTokensDLLURL)
+            writer.WriteAttributeString("URL", (MainURL & IMTokensDLLURL))
             writer.WriteEndElement()
 
             writer.WriteStartElement("row")
             writer.WriteAttributeString("Name", IMLoggingDLL)
             writer.WriteAttributeString("Version", FileVersionInfo.GetVersionInfo(FileDirectory & IMLoggingDLL).FileVersion)
             writer.WriteAttributeString("MD5", MD5CalcFile(FileDirectory & IMLoggingDLL))
-            writer.WriteAttributeString("URL", IMLoggingDLLURL)
+            writer.WriteAttributeString("URL", (MainURL & IMLoggingDLLURL))
             writer.WriteEndElement()
 
             ' End document.
