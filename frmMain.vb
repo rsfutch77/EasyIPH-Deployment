@@ -25,16 +25,16 @@ Public Class frmMain
     Private DatabasePath As String ' Where we build the SQLite database
     Private FinalDBPath As String ' Final DB
     Private DatabaseName As String
-    Private FinalDBName As String = "EVEIPH DB"
+    Private FinalDBName As String = "EasyIPH_DB"
     Private SQLInstance As String ' how to log into the SQL server on the host computer
     Private Const DBExtention As String = ".sqlite"
 
     ' For saving and scanning the github folder for updates - this folder is in the deployment folder (same as installer and binary)
-    Private FinalBinaryFolder As String = "EVEIPH\"
-    Private FinalBinaryZip As String = "EVEIPH Binaries.zip"
+    Private FinalBinaryFolder As String = "EasyIPH\"
+    Private FinalBinaryZip As String = "EasyIPH_Binaries.zip"
 
     ' File names
-    Private MSIInstaller As String = "EVE Isk per Hour.msi"
+    Private MSIInstaller As String = "EasyIPH.msi"
     Private MSIDirectory As String = Path.Combine(My.Application.Info.DirectoryPath, "\EasyIPH-Setup")
 
     ' Special Processing
@@ -45,7 +45,7 @@ Public Class frmMain
 
     Private EVEIPHEXE As String = "EasyIPH.exe"
     Private EVEIPHUpdater As String = "EasyIPH-Updater.exe"
-    Private EVEIPHDB As String = "EVEIPH DB.sqlite"
+    Private EVEIPHDB As String = "EasyIPH_DB.sqlite"
 
     ' DLLs
     Private IMTokensJWTDLL As String = "System.IdentityModel.Tokens.Jwt.dll"
@@ -440,16 +440,8 @@ Public Class frmMain
                 UploadFileTestDirectory = ""
             End If
 
-            'If Not IsNothing(VersionNumber) Then
-            '    ' Set these if we have a version number
-            '    FinalBinaryZip = "EVEIPH Binaries.zip"
-
-            '    ' File names
-            '    MSIInstaller = "EVE Isk per Hour.msi"
-            'Else
-            FinalBinaryZip = "EVEIPH Binaries.zip"
-            MSIInstaller = "EVE Isk per Hour.msi"
-            'End If
+            FinalBinaryZip = "EasyIPH_Binaries.zip"
+            MSIInstaller = "EasyIPH.msi"
 
             BPStream.Close()
         Else
@@ -620,10 +612,10 @@ Public Class frmMain
         UploadFileTestDirectory = lblTestPath.Text
 
         ' Set these if we have a version number
-        FinalBinaryZip = "EVEIPH Binaries.zip"
+        FinalBinaryZip = "EasyIPH_Binaries.zip"
 
         ' File names
-        MSIInstaller = "EVE Isk per Hour.msi"
+        MSIInstaller = "EasyIPH.msi"
 
         ' Save the file path as a text file and the database name
         MyStream = File.CreateText(SettingsFileName)
@@ -5201,7 +5193,7 @@ Public Class frmMain
         ' Copy the new XML file into the root directory - so I don't get updates and then manually upload this to media fire so people don't get crazy updates
         Using writer As XmlWriter = XmlWriter.Create(EVEIPHRootDirectory & VersionXMLFileName, XMLSettings)
             writer.WriteStartDocument()
-            writer.WriteStartElement("EVEIPH") ' Root.
+            writer.WriteStartElement("EasyIPH") ' Root.
             writer.WriteAttributeString("Version", VersionNumber)
             writer.WriteStartElement("LastUpdated")
             writer.WriteString(CStr(Now))
